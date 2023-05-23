@@ -6,15 +6,21 @@ from neural_network import *
 vec2 = pg.math.Vector2
 
 class Snake:
-    def __init__(self, game):
+    def __init__(self, game, brain, simulate = False):
         #print("New snake")
         self.game = game
         self.size = game.TILE_SIZE
         self.rect = pg.rect.Rect([0, 0, game.TILE_SIZE, game.TILE_SIZE])
-        self.step_delay = 0 #milliseconds
+        if simulate:
+            self.step_delay = 20
+        else:
+            self.step_delay = 0 #milliseconds
         self.time = 0
         self.directions = {pg.K_w: 1, pg.K_s: 1, pg.K_a: 1, pg.K_d: 1}
-        self.brain = Feedforward_neural_network(12, 3, 3, 120)
+        if brain == None:
+            self.brain = Feedforward_neural_network(9, 3, 2, 15)
+        else:
+            self.brain = brain
         self.inputs = []
         # add a fitness function and the associated values needed
         # add the amount of steps per snake
@@ -60,7 +66,7 @@ class Snake:
 
     def calculate_fitness(self):
         self.calculate_average_steps()
-        self.fitness = (self.record * 5000) - (self.deaths * 150) - (self.average_steps * 100) - (self.penalties * 1000)
+        self.fitness = (self.record * 5000) - (self.deaths * 150) - (self.average_steps * 100) - (self.penalties * 1500)
         return self.fitness
 
     def delta_time(self):
@@ -115,41 +121,49 @@ class Snake:
         def set_input(idx, val):
             self.inputs[idx] = val
 
-        self.inputs = [0] * 12  
-        directions = {"left": vec2(1, 0), "right": vec2(-1, 0), "up": vec2(0, -1), "down": vec2(0, 1)}
-        is_segment = {
-            "left": self.is_segment_left,
-            "right": self.is_segment_right,
-            "up": self.is_segment_top,
-            "down": self.is_segment_bottom,
-        }
+        # Initialy set all inputs to 0
+        self.inputs = [0] * 9  
+
+        # Which direction is the snake moving
+        if self.direction.x > 0:
+            set_input(0,1)
+        if self.direction.x < 0:
+            set_input(1,1)
+        if self.direction.y > 0:
+            set_input(2,1)
+        if self.direction.y < 0:
+            set_input(3,1)
+
+        # Check for danger to either side of the snakes head
+        half_size_of_segment = (self.size/2)
+        if self.rect.centerx >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_right():
+            set_input(4, 1)
+        if self.rect.centerx <= half_size_of_segment or self.is_segment_left():
+            set_input(5, 1)
+        if self.rect.centery >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_bottom():
+            set_input(6, 1)
+        if self.rect.centery <= half_size_of_segment or self.is_segment_top():
+            set_input(7, 1)
         
-        for i in range(4):
-            direction = list(directions.values())[i]
-            if i < 2:
-                if getattr(self.rect, 'x' if direction[0] > 0 else 'right') == direction[0] * self.game.WINDOW_SIZE or is_segment[list(directions.keys())[i]]():
-                    set_input(i, 1)
-            else:
-                if getattr(self.rect, 'y' if direction[1] > 0 else 'bottom') == direction[1] * self.game.WINDOW_SIZE or is_segment[list(directions.keys())[i]]():
-                    set_input(i, 1)
-        
-        for i in range(4):
-            direction = list(directions.values())[i]
-            set_input(i+4, int(self.direction == pg.math.Vector2(direction)))
-        
-        rel_x = self.food.rect.centerx - self.rect.centerx
-        rel_y = self.food.rect.centery - self.rect.centery
-        # Divide these values by the maximum distance the food could be. This will put them in the same range
-        max_size = self.game.WINDOW_SIZE - self.size
-        rel_x /= max_size
-        rel_y /= max_size
-        
-        set_input(8, rel_x)
-        set_input(9, rel_y)
-        set_input(10, 1 if rel_y < 0 else -1)
-        set_input(11, 1 if rel_x > 0 else -1)
-        
-        #self.normalize_inputs()
+        # Value of sinus of angle on which the food is inclined relative to the snake
+        snake_to_food_vec = vec2(self.food.rect.center) - vec2(self.rect.center)
+        if np.linalg.norm(snake_to_food_vec) == 0:
+            angle_between = 0
+        else:
+            v1 = np.array([self.direction.x, self.direction.y, 0])
+            v2 = np.array([snake_to_food_vec.x, snake_to_food_vec.y, 0])
+            direction_normalized = v1 / np.linalg.norm(v1)
+            snake_to_food_normalized = v2 / np.linalg.norm(v2)
+
+            dot_product = np.dot(direction_normalized, snake_to_food_normalized)
+            angle_between = np.arccos(dot_product)
+
+            cross_product = np.cross(direction_normalized, snake_to_food_normalized)
+            if cross_product[2] < 0:
+                angle_between = -angle_between
+
+        sin_of_angle = np.sin(angle_between)
+        set_input(8, sin_of_angle)
 
     def normalize_inputs(self):    
         means = np.mean(self.inputs, axis = 0)

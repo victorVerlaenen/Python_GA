@@ -14,6 +14,7 @@ class Game:
         self.POPULATION_SIZE = 50
         self.current_snake_index = 0
         self.show_individuals = True
+        self.simulation = False
         self.new_game()
 
     def draw_grid(self):
@@ -21,30 +22,41 @@ class Game:
         [pg.draw.line(self.screen, [50] * 3, (0, y), (self.WINDOW_SIZE, y)) for y in range(0, self.WINDOW_SIZE, self.TILE_SIZE)]
 
     def new_game(self):
-        # initialize the initial population
-        self.population = Population(self.POPULATION_SIZE, self)
-        self.genetic_algorithm = Genetic_algorithm(100, self)
+        if self.simulation == False:
+            # initialize the initial population
+            self.population = Population(self.POPULATION_SIZE, self)
+            self.genetic_algorithm = Genetic_algorithm(100, self)
+        else:
+            saved_individual_file = open("best_individual_V1.pkl", 'rb')
+            brain = pickle.load(saved_individual_file)
+            self.individual = Snake(self, brain, True)
 
     def update(self):
-        # TODO update genetic algorithm
-        self.population.update()
-        if self.population.all_done:
-            # TODO next generation
-            self.population = self.genetic_algorithm.next_generation(self.population)
+        if self.simulation == False:
+            self.population.update()
+            if self.population.all_done:
+                self.population = self.genetic_algorithm.next_generation(self.population)
+        else:
+            self.individual.update()
 
         pg.display.flip()
         self.clock.tick(60)
 
     def draw(self):
         self.screen.fill("black")
-        self.draw_grid()
-        if self.show_individuals:
-            self.population.draw()
-        # TODO draw the algorithm (the snakes in the current population)
+        if self.simulation == False:
+            if self.show_individuals:
+                self.draw_grid()
+                self.population.draw()
+        else:
+            self.draw_grid()
+            self.individual.draw(255)
 
     def check_event(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
+                if self.simulation == False:
+                    self.genetic_algorithm.save_best_individual()
                 pg.quit()
                 sys.exit()
             # snake control

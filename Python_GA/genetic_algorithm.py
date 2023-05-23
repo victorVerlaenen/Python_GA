@@ -4,6 +4,8 @@ import pygame as pg
 import numpy as np
 import sys
 import random
+import pickle
+import time
 
 RED = '\033[91m'
 GREEN = '\033[92m'
@@ -14,7 +16,7 @@ RESET = '\033[0m'
 class Population:
     def __init__(self, population_size, game):
         self.game = game
-        self.individuals = [Snake(game) for i in range(population_size)]
+        self.individuals = [Snake(game, None) for i in range(population_size)]
         self.current_individual_index = 0
         self.INDIVIDUALS_TO_DRAW = population_size
         self.population_size = population_size
@@ -49,30 +51,55 @@ class Genetic_algorithm:
         self.NUMBER_OF_GENERATIONS = number_of_generations
         self.current_generation = 0
         self.game = game
+        self.best_individual = None
         print(RED + "GENERATION " + str(self.current_generation) + "... " + RESET, end='', flush=True)
 
-    def next_generation(self, population):
-        # Exit program if number of generation is achieved
-        if self.current_generation >= self.NUMBER_OF_GENERATIONS:
-            pg.quit()
-            sys.exit()
-        print(GREEN + " DONE" + RESET)
+    def update_best_individual(self, population):
+        if self.best_individual == None:
+            self.best_individual = population.individuals[-1] # Last element is the highest fitness individual
+            return
+        if self.best_individual.fitness < population.individuals[-1].fitness:
+            self.best_individual = population.individuals[-1]
 
+    def save_best_individual(self):
+        if self.current_generation == 0:
+            return
+        timestamp = time.strftime("%Y%m%d%H%M%S")
+        file_name = f"best_individual_V{timestamp}.pkl"
+        with open(file_name, 'wb') as file:
+            pickle.dump(self.best_individual.brain, file)
+            print(f"Best individual saved to {file_name}")
+
+    def next_generation(self, population):
         # These two have to be sorted the same way, so that the indices match
         fitness_list = self.calculate_population_fitness(population)
         self.sort_population_on_fitness(population)
         fitness_list.sort()
 
+        self.update_best_individual(population)
+
+        # Debugging
+        print(GREEN + " DONE" + RESET)
         print(population)
+
+        # Exit program if number of generation is achieved
+        if self.current_generation >= self.NUMBER_OF_GENERATIONS:
+            self.save_best_individual()
+            pg.quit()
+            sys.exit()
 
         # Make a new population and clear the individuals
         new_population = Population(population.population_size, self.game)
         new_population.individuals = []
 
+        # Select the elite snakes
+        mating_pool = self.elitism(0.2, population)
+        fitness_list = fitness_list[-len(mating_pool):]
+
         # Keep making new offspring till population size is achieved
         while len(new_population.individuals) < population.population_size:
             # Selection
-            parents = self.roulette_wheel_selection(population, fitness_list, 2)
+            parents = self.roulette_wheel_selection(mating_pool, fitness_list, 2)
             # Crossover
             offspring = self.uniform_crossover(parents)
             # Mutation
@@ -82,6 +109,13 @@ class Genetic_algorithm:
         self.current_generation += 1
         print(RED + "GENERATION " + str(self.current_generation) + "... " + RESET, end='', flush=True)
         return new_population
+
+    def elitism(self, elite_percentage, population):
+        # How many individuals are needed
+        top_count = int(len(population.individuals) * elite_percentage)
+
+        elite_individuals = population.individuals[-top_count:]
+        return elite_individuals
 
     def calculate_population_fitness(self, population):
         print(YELLOW + "Calculating the fitness values..." + RESET)
@@ -105,11 +139,11 @@ class Genetic_algorithm:
 
         # Chooses number_of_parents amount of individuals based on the selection_probabilities
         # replace=False makes sure it doesnt select the same individual more then once
-        parents = np.random.choice(population.individuals, size=number_of_parents, p=selection_probabilities, replace=False)
+        parents = np.random.choice(population, size=number_of_parents, p=selection_probabilities, replace=False)
         return parents.tolist()
     
     def uniform_crossover(self, parents):
-        offspring = Snake(self.game)
+        offspring = Snake(self.game, None)
 
         parent1_index = random.randint(0, len(parents) - 1)
         parent2_index = parent1_index
