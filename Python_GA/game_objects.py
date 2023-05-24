@@ -173,28 +173,28 @@ class Snake:
     def is_segment_left(self):
         head_x = self.rect.centerx
         for segment in self.segments[1:]:
-            if segment.centerx < head_x:
+            if segment.centerx == head_x - self.size:
                 return True
         return False
 
     def is_segment_top(self):
         head_y = self.rect.centery
         for segment in self.segments[1:]:
-            if segment.centery < head_y:
+            if segment.centery == head_y - self.size:
                 return True
         return False
 
     def is_segment_right(self):
         head_x = self.rect.centerx
         for segment in self.segments[1:]:
-            if segment.centerx > head_x:
+            if segment.centerx == head_x + self.size:
                 return True
         return False
 
     def is_segment_bottom(self):
         head_y = self.rect.centery
         for segment in self.segments[1:]:
-            if segment.centery > head_y:
+            if segment.centery == head_y + self.size:
                 return True
         return False
 
