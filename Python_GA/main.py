@@ -14,7 +14,7 @@ class Game:
         self.POPULATION_SIZE = 50
         self.current_snake_index = 0
         self.show_individuals = True
-        self.simulation = False
+        self.simulation = True
         self.new_game()
 
     def draw_grid(self):
@@ -27,7 +27,7 @@ class Game:
             self.population = Population(self.POPULATION_SIZE, self)
             self.genetic_algorithm = Genetic_algorithm(100, self)
         else:
-            saved_individual_file = open("best_individual_V1.pkl", 'rb')
+            saved_individual_file = open("saved_individuals/best_individual_V20230524020042.pkl", 'rb')
             brain = pickle.load(saved_individual_file)
             self.individual = Snake(self, brain, True)
 

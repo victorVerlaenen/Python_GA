@@ -6,6 +6,7 @@ import sys
 import random
 import pickle
 import time
+import os
 
 RED = '\033[91m'
 GREEN = '\033[92m'
@@ -64,13 +65,17 @@ class Genetic_algorithm:
     def save_best_individual(self):
         if self.current_generation == 0:
             return
+        folder_path = "saved_individuals"
+        os.makedirs(folder_path, exist_ok=True)
         timestamp = time.strftime("%Y%m%d%H%M%S")
-        file_name = f"best_individual_V{timestamp}.pkl"
+        file_name = os.path.join(folder_path, f"best_individual_V{timestamp}.pkl")
         with open(file_name, 'wb') as file:
             pickle.dump(self.best_individual.brain, file)
             print(f"Best individual saved to {file_name}")
 
     def next_generation(self, population):
+        print(GREEN + " DONE" + RESET)
+
         # These two have to be sorted the same way, so that the indices match
         fitness_list = self.calculate_population_fitness(population)
         self.sort_population_on_fitness(population)
@@ -79,7 +84,6 @@ class Genetic_algorithm:
         self.update_best_individual(population)
 
         # Debugging
-        print(GREEN + " DONE" + RESET)
         print(population)
 
         # Exit program if number of generation is achieved
