@@ -14,7 +14,7 @@ class Game:
         self.POPULATION_SIZE = 50
         self.current_snake_index = 0
         self.show_individuals = True
-        self.simulation = True
+        self.simulation = False
         self.new_game()
 
     def draw_grid(self):
