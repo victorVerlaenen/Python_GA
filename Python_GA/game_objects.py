@@ -18,7 +18,7 @@ class Snake:
         self.time = 0
         self.directions = {pg.K_w: 1, pg.K_s: 1, pg.K_a: 1, pg.K_d: 1}
         if brain == None:
-            self.brain = Feedforward_neural_network(9, 3, 2, 15)
+            self.brain = Feedforward_neural_network(4, 3, 2, 15)
         else:
             self.brain = brain
         self.inputs = []
@@ -122,28 +122,38 @@ class Snake:
             self.inputs[idx] = val
 
         # Initialy set all inputs to 0
-        self.inputs = [0] * 9  
+        self.inputs = [0] * 4  
 
-        # Which direction is the snake moving
-        if self.direction.x > 0:
-            set_input(0,1)
-        if self.direction.x < 0:
-            set_input(1,1)
-        if self.direction.y > 0:
-            set_input(2,1)
-        if self.direction.y < 0:
-            set_input(3,1)
-
-        # Check for danger to either side of the snakes head
+        # Is there a danger to any side of the snake, taking direction into account
         half_size_of_segment = (self.size/2)
-        if self.rect.centerx >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_right():
-            set_input(4, 1)
-        if self.rect.centerx <= half_size_of_segment or self.is_segment_left():
-            set_input(5, 1)
-        if self.rect.centery >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_bottom():
-            set_input(6, 1)
-        if self.rect.centery <= half_size_of_segment or self.is_segment_top():
-            set_input(7, 1)
+        if self.direction.x > 0: # Right
+            if self.rect.centerx >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_right():
+                set_input(0,1) # In front
+            if self.rect.centery >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_bottom():
+                set_input(1,1) # To right
+            if self.rect.centery <= half_size_of_segment or self.is_segment_top():
+                set_input(2,1) # To left
+        if self.direction.x < 0: # Left
+            if self.rect.centerx <= half_size_of_segment or self.is_segment_left():
+                set_input(0,1) # In front
+            if self.rect.centery <= half_size_of_segment or self.is_segment_top():
+                set_input(1,1) # To right
+            if self.rect.centery >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_bottom():
+                set_input(2,1) # To left
+        if self.direction.y > 0: # Down
+            if self.rect.centery >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_bottom():
+                set_input(0,1) # In front
+            if self.rect.centerx <= half_size_of_segment or self.is_segment_left():
+                set_input(1,1) # To right
+            if self.rect.centerx >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_right():
+                set_input(2,1) # To left
+        if self.direction.y < 0: # Up
+            if self.rect.centery <= half_size_of_segment or self.is_segment_top():
+                set_input(0,1) # In front
+            if self.rect.centerx >= self.game.WINDOW_SIZE - half_size_of_segment or self.is_segment_right():
+                set_input(1,1) # To right
+            if self.rect.centerx <= half_size_of_segment or self.is_segment_left():
+                set_input(2,1) # To left
         
         # Value of sinus of angle on which the food is inclined relative to the snake
         snake_to_food_vec = vec2(self.food.rect.center) - vec2(self.rect.center)
@@ -163,7 +173,7 @@ class Snake:
                 angle_between = -angle_between
 
         sin_of_angle = np.sin(angle_between)
-        set_input(8, sin_of_angle)
+        set_input(3, sin_of_angle)
 
     def normalize_inputs(self):    
         means = np.mean(self.inputs, axis = 0)
