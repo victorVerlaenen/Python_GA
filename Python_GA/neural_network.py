@@ -4,7 +4,7 @@ import numpy as np
 class Dense_layer:
     def __init__(self, number_of_inputs, number_of_neurons, activation_function):
         self.weights = np.random.uniform(-1, 1, (number_of_inputs, number_of_neurons))
-        self.biases = np.random.uniform(-1, 1, (1, number_of_neurons))
+        self.biases = np.zeros((1, number_of_neurons))
         self.activation = activation_function
 
     def forward(self, inputs):

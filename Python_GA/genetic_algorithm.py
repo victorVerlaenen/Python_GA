@@ -42,7 +42,7 @@ class Population:
         the_string = ''
         for i in range(len(self.individuals)):
             avr_steps_formatted = "{:,.2f}".format(self.individuals[i].average_steps).replace(',',"'")
-            fitness_calculation_string = f"({self.individuals[i].record} * 5000) - ({self.individuals[i].deaths} * 150) - ({avr_steps_formatted} * 100) - ({self.individuals[i].penalties} * 1500)"
+            fitness_calculation_string = f"({self.individuals[i].record} * 5000) - ({self.individuals[i].deaths} * 150) - ({avr_steps_formatted} * 100) - ({self.individuals[i].penalties} * 1000)"
             formatted_fitness = "{:,.2f}".format(self.individuals[i].fitness).replace(',',"'")
             the_string += f"Individual {i}:\t Fitness= {BLUE}{formatted_fitness}{RESET}\t[{fitness_calculation_string}]\n"
         return the_string
@@ -177,8 +177,3 @@ class Genetic_algorithm:
                 for i, weight in enumerate(neuron):
                     if np.random.rand() <= mutation_rate:
                         neuron[i] = np.random.uniform(-1, 1) # tried changing it to lower values
-            for bias in layer.biases:
-                if np.random.rand() <= mutation_rate:
-                    bias = np.random.uniform(-1, 1)
-                    
-        
