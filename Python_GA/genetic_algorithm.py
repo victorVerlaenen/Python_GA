@@ -5,6 +5,7 @@ import numpy as np
 import sys
 import random
 import pickle
+import logging
 import time
 import os
 
@@ -54,6 +55,11 @@ class Genetic_algorithm:
         self.timestamp = time.strftime("%Y%m%d%H%M%S")
         self.game = game
         self.best_individual = None
+        
+        self.file_name = os.path.join("logs", f"results_V{self.timestamp}.log")
+        logging.basicConfig(filename=self.file_name, filemode='w')
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
         print(RED + "GENERATION " + str(self.current_generation) + "... " + RESET, end='', flush=True)
 
     def update_best_individual(self, population):
@@ -77,6 +83,9 @@ class Genetic_algorithm:
     def next_generation(self, population):
         print(GREEN + " DONE" + RESET)
 
+        #Logging
+        self.logger.debug(f"\nGENERATION {str(self.current_generation)}...")
+
         # These two have to be sorted the same way, so that the indices match
         fitness_list = self.calculate_population_fitness(population)
         self.sort_population_on_fitness(population)
@@ -86,6 +95,11 @@ class Genetic_algorithm:
 
         # Debugging
         print(population)
+        
+        #Logging
+        for i in range(len(population.individuals)):
+            the_string = f"Individual {i}:\t Fitness= {population.individuals[i].fitness}"
+            self.logger.debug(the_string)
 
         # Exit program if number of generation is achieved
         if self.current_generation >= self.NUMBER_OF_GENERATIONS:
