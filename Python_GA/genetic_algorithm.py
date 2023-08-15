@@ -51,6 +51,7 @@ class Genetic_algorithm:
     def __init__(self, number_of_generations, game):
         self.NUMBER_OF_GENERATIONS = number_of_generations
         self.current_generation = 0
+        self.timestamp = time.strftime("%Y%m%d%H%M%S")
         self.game = game
         self.best_individual = None
         print(RED + "GENERATION " + str(self.current_generation) + "... " + RESET, end='', flush=True)
@@ -67,8 +68,8 @@ class Genetic_algorithm:
             return
         folder_path = "saved_individuals"
         os.makedirs(folder_path, exist_ok=True)
-        timestamp = time.strftime("%Y%m%d%H%M%S")
-        file_name = os.path.join(folder_path, f"best_individual_V{timestamp}.pkl")
+        
+        file_name = os.path.join(folder_path, f"best_individual_V{self.timestamp}.pkl")
         with open(file_name, 'wb') as file:
             pickle.dump(self.best_individual.brain, file)
             print(f"Best individual saved to {file_name}")
