@@ -18,7 +18,7 @@ class Snake:
         self.time = 0
         self.directions = {pg.K_w: 1, pg.K_s: 1, pg.K_a: 1, pg.K_d: 1}
         if brain == None:
-            self.brain = Feedforward_neural_network(4, 3, 2, 15)
+            self.brain = Feedforward_neural_network(4, 3, 2, 30)
         else:
             self.brain = brain
         self.inputs = []

@@ -37,11 +37,11 @@ class Feedforward_neural_network:
         self.layers = []
 
         # Add input layer
-        self.layers.append(Dense_layer(number_of_inputs, number_of_neurons_per_hidden_layer, "sigmoid"))
+        self.layers.append(Dense_layer(number_of_inputs, number_of_neurons_per_hidden_layer, "ReLu"))
 
         # Add hidden layers
         for i in range(number_of_hidden_layers):
-            self.layers.append(Dense_layer(number_of_neurons_per_hidden_layer, number_of_neurons_per_hidden_layer, "sigmoid"))
+            self.layers.append(Dense_layer(number_of_neurons_per_hidden_layer, number_of_neurons_per_hidden_layer, "ReLu"))
 
         # Add output layer
         self.layers.append(Dense_layer(number_of_neurons_per_hidden_layer, number_of_outputs, "softmax"))
