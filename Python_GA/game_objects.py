@@ -122,7 +122,7 @@ class Snake:
             self.inputs[idx] = val
 
         # Initialy set all inputs to 0
-        self.inputs = [0] * 4  
+        self.inputs = [-1] * 4  
 
         # Is there a danger to any side of the snake, taking direction into account
         half_size_of_segment = (self.size/2)
