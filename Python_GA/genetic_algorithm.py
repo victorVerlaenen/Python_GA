@@ -112,13 +112,15 @@ class Genetic_algorithm:
         new_population.individuals = []
 
         # Select the elite snakes
-        mating_pool = self.elitism(0.2, population)
-        fitness_list = fitness_list[-len(mating_pool):]
+        elites = self.elitism(0.2, population)
+        for i in range(len(elites)):
+            new_population.individuals.append(Snake(self.game, elites[i].brain))
+        #fitness_list = fitness_list[-len(mating_pool):]
 
         # Keep making new offspring till population size is achieved
         while len(new_population.individuals) < population.population_size:
             # Selection
-            parents = self.roulette_wheel_selection(mating_pool, fitness_list, 2)
+            parents = self.roulette_wheel_selection(population.individuals, fitness_list, 2)
             # Crossover
             offspring = self.uniform_crossover(parents)
             # Mutation
