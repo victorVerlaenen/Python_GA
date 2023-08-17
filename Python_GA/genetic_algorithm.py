@@ -98,7 +98,8 @@ class Genetic_algorithm:
         
         #Logging
         for i in range(len(population.individuals)):
-            the_string = f"Individual {i}:\t Fitness= {population.individuals[i].fitness}"
+            fitness_calculation_string = f"({population.individuals[i].record} * 5000) - ({population.individuals[i].deaths} * 150) - ({population.individuals[i].average_steps} * 100) - ({population.individuals[i].penalties} * 1000)"
+            the_string = f"Individual {i}:\t Fitness: {fitness_calculation_string} =\t\t {population.individuals[i].fitness}"
             self.logger.debug(the_string)
 
         # Exit program if number of generation is achieved
