@@ -27,7 +27,7 @@ class Game:
             self.population = Population(self.POPULATION_SIZE, self)
             self.genetic_algorithm = Genetic_algorithm(100, self)
         else:
-            saved_individual_file = open("saved_individuals/best_individual_V5.pkl", 'rb')
+            saved_individual_file = open("saved_individuals/best_individual_V4.pkl", 'rb')
             brain = pickle.load(saved_individual_file)
             self.individual = Snake(self, brain, True)
 
