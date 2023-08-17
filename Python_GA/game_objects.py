@@ -121,7 +121,7 @@ class Snake:
         def set_input(idx, val):
             self.inputs[idx] = val
 
-        # Initialy set all inputs to 0
+        # Initialy set all inputs to defaults
         self.inputs = [-1, -1, -1, 0, 0, 0, 0]  
 
         # Is there a danger to any side of the snake, taking direction into account
